@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link href="css/bootstrap.min.css" rel="stylesheet" />
+		<script src="js/jquery.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script src="js/vue.min.js"></script>
+		<script>
+			$(function() {
+				var data4Vue = {
+					person: ['邓鑫', '黄家贵', '龙文斌', '吴文杰', '洪飞', '王雷'],
+					personCal: [],
+					MoneyList: [],
+					moneys:[],
+					orderPerson:[],
+					outInMoney:[],
+					avg:0.0,
+					num:0,
+					total:0.0
+				};
+				//ViewModel
+				var vue = new Vue({
+					el: '#workingArea',
+					data: data4Vue,
+					mounted: function() {
+						
+					},
+					methods: {
+						// 输入框获取金额数值
+						assignment: function(p,event) {
+							el = event.currentTarget;
+							vue.MoneyList[p]=parseFloat(el.value);
+							vue.cal();
+						},
+						//计算
+						cal:function(){
+							vue.total =0;
+							vue.avg=0;
+							vue.moneys=[];
+							vue.orderPerson=[];
+							vue.outInMoney=[];
+							for(x in vue.personCal){
+								vue.moneys.push(parseFloat(vue.MoneyList[vue.personCal[x]]));
+								vue.total = vue.total + vue.MoneyList[vue.personCal[x]];
+							}
+							vue.avg = vue.total / vue.num ;
+							vue.moneys.sort(function(a,b){
+								return b - a
+							});
+							for( x in vue.moneys){
+								for(y in vue.personCal){
+									if(vue.MoneyList[vue.personCal[y]]==vue.moneys[x]){
+										vue.orderPerson.push(vue.personCal[y]);
+									}
+								}
+							}
+							for(var i=0;i<vue.moneys.length;i++){
+								if(vue.moneys[i]<vue.avg){
+									var outp = vue.orderPerson[i];
+									var inp = vue.orderPerson[0];
+									if(outp!=inp){
+									var money = vue.avg - vue.moneys[i];
+									var msg = outp + "-------\>" + inp + "  :" + money +"￥";
+									vue.outInMoney.push(msg);
+									}
+								}else if(vue.moneys[i]>vue.avg){
+									var outp = vue.orderPerson[0];
+									var inp = vue.orderPerson[i];
+									if(outp!=inp){
+									var money = vue.moneys[i] - vue.avg;
+									var msg = outp + "-------\>" + inp + "  :" + money +"￥";
+									vue.outInMoney.push(msg);
+									}
+								}
+							}
+							console.log(vue.outInMoney);
+						},
+						//点击名字出现金额输入框
+						add:function(p,event){
+							//获取节点
+							var el = event.currentTarget;
+							//点击后改变样式
+							if(el.className == "list-group-item"){
+								vue.num=vue.num+1;
+								el.className="list-group-item active";
+							}else{
+								el.className="list-group-item";
+								//去除人物时重置金额
+								vue.MoneyList[p]=0;
+								vue.num=vue.num-1;
+							}
+							//添加金额输入框或者去除金额输入框
+							var index = vue.personCal.indexOf(p);
+							if(index==-1){
+								vue.personCal.push(p);
+							}
+							else{
+								vue.personCal.splice(index,1);
+								vue.cal();
+							}
+						}
+					}
+				});
+			});
+		</script>
+		<style>
+			div{
+				/* border:1px solid #F00; */
+			}
+		</style>
+	</head>
+	<body>
+		<div id="workingArea">
+			<div class="row center-block ">
+				<div class="col-xs-2 " style="margin-top: 100px;">
+					<div class="panel panel-primary ">
+						<div class="panel-heading">
+							<h3 class="panel-title">选择参与结算的成员</h3>
+						</div>
+						<div class="panel-body ">
+							<div class="list-group" v-for="p in person">
+								<button @click="add(p,$event)" class="list-group-item">{{p}}</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-xs-3" style="margin-top: 150px;">
+					<form class="form-inline">
+						<div class="form-group" v-for="p in personCal" style="margin: 10px;">
+							<label class="sr-only" for="money">Money</label>
+							<div class="input-group">
+								<div class="input-group-addon">{{p}}</div>
+								<input type="number" class="form-control" @blur="assignment(p,$event)" id="money" placeholder="Money">
+								<div class="input-group-addon">￥</div>
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="col-xs-5" style="margin-top: 150px;">
+					<div class="panel panel-default" v-if="total">
+						<div class="panel-heading">总:<span style="color: red;">{{total}}</span>元 平均:<span style="color: red;">{{avg}}</span>元</div>
+						<div class="panel-body">
+							<ul class="list-group">
+								<li class="list-group-item" v-for="s in outInMoney">{{s}}</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</body>
+</html>
