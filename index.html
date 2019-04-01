@@ -11,14 +11,14 @@
 			$(function() {
 				var data4Vue = {
 					person: ['邓鑫', '黄佳贵', '龙文斌', '吴文杰', '洪飞', '王雷'],
-					personCal: [],
-					MoneyList: [],
-					moneys:[],
-					orderPerson:[],
-					outInMoney:[],
-					avg:0.0,
-					num:0,
-					total:0.0
+					personCal: [], //选中的人物
+					MoneyList: [], //输入的金额
+					moneys:[],  //排序后的金额
+					orderPerson:[], // 排序后的人物
+					outInMoney:[],  // 转账信息
+					avg:0.0,  // 平均值
+					num:0,  //  人物数量
+					total:0.0 // 总值
 				};
 				//ViewModel
 				var vue = new Vue({
@@ -36,19 +36,23 @@
 						},
 						//计算
 						cal:function(){
+							//计算前清空数据
 							vue.total =0;
 							vue.avg=0;
 							vue.moneys=[];
 							vue.orderPerson=[];
 							vue.outInMoney=[];
+							//计算总值,平均值,获取待排序的金额
 							for(x in vue.personCal){
 								vue.moneys.push(parseFloat(vue.MoneyList[vue.personCal[x]]));
 								vue.total = vue.total + vue.MoneyList[vue.personCal[x]];
 							}
 							vue.avg = vue.total / vue.num ;
+							//金额排序
 							vue.moneys.sort(function(a,b){
 								return b - a
 							});
+							//根据金额顺序创建排序后的人物列表
 							for( x in vue.moneys){
 								for(y in vue.personCal){
 									if(vue.MoneyList[vue.personCal[y]]==vue.moneys[x]){
@@ -56,6 +60,7 @@
 									}
 								}
 							}
+							//生成转账信息
 							for(var i=0;i<vue.moneys.length;i++){
 								if(vue.moneys[i]<vue.avg){
 									var outp = vue.orderPerson[i];
